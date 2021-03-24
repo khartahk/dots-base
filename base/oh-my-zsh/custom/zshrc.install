@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+source "$DOTS_SOURCE/base/bash/environment"
+
+APP_DIR="zshrc"
+HOME_APP="$HOME/.$APP_DIR"
+CNFG_APP="$XDG_CONFIG_HOME/oh-my-zsh/custom/$APP_DIR"
+
+# Cleanup home directory
+rm -f "$HOME_APP"
+
+# Link zshrc
+ln -sf "$CNFG_APP" "$HOME_APP"

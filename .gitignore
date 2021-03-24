@@ -1,0 +1,19 @@
+# Ignore common files
+*~
+
+# Ignore all custom plugins
+/base/oh-my-zsh/custom/plugins/*
+
+# except
+#!/base/oh-my-zsh/custom/plugins/zsh-autosuggestions
+#!/base/oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# Ignore /personal & /work subdir
+/personal/*
+!/personal/.gitkeep
+
+/work/*
+!/work/.gitkeep
+
+# Don't ignore the following
+!.gitkeep

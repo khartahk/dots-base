@@ -1,0 +1,44 @@
+defaults:
+  ControlMaster: no
+  ControlPath: ~/.cache/ssh/cm/%h-%p-%r.sock
+  ControlPersist: yes
+# Edit in ~/.ssh/assh.custom.yml
+#  IdentityFile: ~/.ssh/id_rsa
+  Hooks:
+    # Automatically backup ~/.ssh/config
+    BeforeConfigWrite:
+      - 'exec set -x; cp -n {{.SSHConfigPath}} {{.SSHConfigPath}}.preassh.bkp'
+
+includes:
+- ~/.ssh/assh.custom.yml
+- ~/.ssh/assh.d/*.yml
+
+# Templates are similar to Hosts; you can inherit from them
+# but you cannot ssh to a template
+templates:
+# Edit in ~/.ssh/assh.custom.yml
+#  User_github:
+#    User: CHANGEME
+  User_ubuntu:
+    User: ubuntu
+  User_ec2-user:
+    User: ec2-user
+  StrictHostKeyChecking_no:
+    StrictHostKeyChecking: no
+  ResolveCommand_ExternalIP: # ssh [$AWS_PROFILE]-env-srvname
+    ResolveCommand: /bin/bash -c "~/.ssh/ec2ips.sh %h $(echo %h | cut -d'-' -f'1') 1 $SRVNUM"
+  ResolveCommand_ExternalIP_bastion: # ssh [$AWS_PROFILE]-env-srvname
+    ResolveCommand: /bin/bash -c "~/.ssh/ec2ips.sh %h $(echo %h | cut -d'-' -f'1') 1"
+  ResolveCommand_InternalIP: # ssh [$AWS_PROFILE]-env-srvname
+    ResolveCommand: /bin/sh -c "~/.ssh/ec2ips.sh %h $(echo %h | cut -d'-' -f'1') 0 $SRVNUM"
+  ResolveCommand_ExternalIP-Project-Env: # ssh [$AWS_PROFILE-production]-srvname
+    ResolveCommand: /bin/sh -c "~/.ssh/ec2ips.sh %h $(echo %h | cut -d'-' -f'1,2') 1 $SRVNUM"
+  ResolveCommand_InternalIP-Project-Env: # ssh [$AWS_PROFILE-production]-srvname
+    ResolveCommand: /bin/sh -c "~/.ssh/ec2ips.sh %h $(echo %h | cut -d'-' -f'1,2') 0 $SRVNUM"
+  ResolveCommand_ExternalIP-prod: # ssh [$AWS_PROFILE-prod]-srvname
+    ResolveCommand: /bin/sh -c "~/.ssh/ec2ips.sh %h $(echo %h | cut -d'-' -f'1')-prod 1"
+  ResolveCommand_ExternalIP-production: # ssh [$AWS_PROFILE-production]-srvname
+    ResolveCommand: /bin/sh -c "~/.ssh/ec2ips.sh %h $(echo %h | cut -d'-' -f'1')-production 1"
+  ResolveCommand_ExternalIP-reference: # ssh [$AWS_PROFILE-reference]-srvname
+    ResolveCommand: /bin/sh -c "~/.ssh/ec2ips.sh %h $(echo %h | cut -d'-' -f'1')-reference 1"
+!!@@

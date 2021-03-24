@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+source "$DOTS_SOURCE/base/bash/environment"
+
+APP_DIR="psql"
+CNFG_DIR="$XDG_CONFIG_HOME/$APP_DIR"
+
+for FILE in "pgpass" "psqlrc"
+do
+if [ ! -L "$HOME/.$FILE" ] && [ -f "$HOME/.$FILE" ] ; then
+  move_from_home_2_config "$HOME/.$FILE" "$CNFG_DIR/$FILE"
+else
+  # Cleanup home directory
+  rm -f "$HOME/.$FILE"
+  
+  # Link pgpass / psqlrc
+  ln -sf "$CNFG_DIR/$FILE" "$HOME/.$FILE"
+fi
+done

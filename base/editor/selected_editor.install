@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+source "$DOTS_SOURCE/base/bash/environment"
+
+APP_DIR="selected_editor"
+HOME_APP="$HOME/.$APP_DIR"
+CNFG_APP="$XDG_CONFIG_HOME/editor/$APP_DIR"
+
+# Cleanup home directory
+rm -f "$HOME_APP"
+
+# Link selected_editor
+ln -sf "$CNFG_APP" "$HOME_APP"

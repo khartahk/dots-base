@@ -1,0 +1,1 @@
+plugins=(aws git zsh-autosuggestions)

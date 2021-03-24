@@ -1,0 +1,8 @@
+defaults:
+  IdentityFile: ~/.ssh/id_ed25519
+
+# Templates are similar to Hosts; you can inherit from them
+# but you cannot ssh to a template
+templates:
+  User_github:
+    User: YOUR_GITHUB_USERNAME

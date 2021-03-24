@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+alias config='/usr/bin/git --git-dir=$HOME/.local/etc/.git/ --work-tree=$HOME/.local/etc/'
+
+[ -f /usr/share/bash-completion/completions/git ] && source /usr/share/bash-completion/completions/git
+__git_complete config __git_main

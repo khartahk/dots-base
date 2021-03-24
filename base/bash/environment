@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+# XDG directories
+export XDG_CONFIG_HOME="$HOME/.config"
+export  XDG_CACHE_HOME="$HOME/.cache"
+export   XDG_DATA_HOME="$HOME/.local/share"
+
+export _PATHS=( "$HOME/.local/bin" )
+for P in "${_PATHS[@]}"
+do
+  if [[ "$PATH" != *"$P"* ]]; then
+    export PATH="$PATH:$P"
+  fi
+done
+
+# nodejs's NPM tool configuration
+if hash npm 2>/dev/null
+then
+  export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+  export NPM_CONFIG_DEVDIR="$XDG_CACHE_HOME/node-gyp"
+  export PATH="$PATH:$HOME/.local/lib/nodejs/bin"
+fi
+
+# GO
+## Don't overrwrite an already configured GOPATH
+if hash go 2>/dev/null && [ -z "${GOPATH+1}" ]
+then
+  export GOPATH="$HOME/.local/lib/go"
+  export GO111MODULE=on
+  export PATH="$PATH:$GOPATH/bin"
+fi
+
+if hash aws 2>/dev/null
+then
+  # Set up aws bash completion
+  complete -C "$HOME/.local/bin/aws_completer" aws
+  export AWS_CONFIG_FILE="$XDG_CONFIG_HOME/aws/config"
+  export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
+fi
+
+if hash ruby 2>/dev/null
+then
+  export PATH="$PATH:$(ruby -e 'puts Gem.user_dir')/bin"
+fi
+
+if hash rbenv 2>/dev/null
+then
+  export RBENV_ROOT="$HOME/.local/lib/rbenv"
+fi
+
+hash ansible 2>/dev/null && export     ANSIBLE_CONFIG="$XDG_CONFIG_HOME/ansible/config.ini"
+hash docker  2>/dev/null && export      DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
+hash gpg     2>/dev/null && export          GNUPGHOME="$XDG_CONFIG_HOME/gnupg"
+hash psql    2>/dev/null && export         PGPASSFILE="$XDG_CONFIG_HOME/psql/pgpass"
+hash psql    2>/dev/null && export             PSQLRC="$XDG_CONFIG_HOME/psql/psqlrc"
+
+if hash tfenv 2>/dev/null && hash terraform 2>/dev/null
+then
+  complete -C "$HOME/.local/lib/tfenv/versions/$(tfenv version-name)/terraform" terraform
+  complete -C "$HOME/.local/lib/tfenv/versions/$(tfenv version-name)/terraform" terragrunt
+fi
+
+# less
+## Less history file and key file
+export LESSHISTFILE="$XDG_CACHE_HOME/less_history"
+export LESSKEY="$XDG_CONFIG_HOME/less/keyfile.bin"
+
+# Source completions for the dots utility
+source "$HOME/.local/lib/dots/contrib/bash_completion"
+
+# Include environment configurations from DATA_HOME
+if [ -d "$XDG_DATA_HOME/environment.d" ]
+then
+  for f in "$XDG_DATA_HOME/environment.d/"*; do source "$f"; done
+fi
+
+function move_from_home_2_config () {
+  HOME_APP=$1
+  CNFG_APP=$2
+
+  #echo "$DOTS_YES_ALL" | grep '^[no]' 2>&1>/dev/null
+  #if [ $? -eq "0" ]; then
+    echo "$HOME_APP already exists."
+    echo -n "Shall I move it to $CNFG_APP: (y/n)? "
+    old_stty_cfg=$(stty -g)
+    stty raw -echo
+    answer=$( while ! head -c 1 | grep -i '[ny]' ;do true ;done )
+    stty $old_stty_cfg
+  #  if [ $answer=="a" ]; then
+  #    DOTS_YES_ALL="yes"
+  #  fi
+  #else
+  #  answer='a'
+  #fi
+  
+  if echo "$answer" | grep -iq "^[y]" ;then
+      echo Yes
+      SOURCE="$HOME_APP"
+      if [ -d $HOME_APP ]; then SOURCE="$HOME_APP/*"; fi
+      eval "cp -af $SOURCE $CNFG_APP 2>/dev/null ;"
+      eval "rm -Rf $HOME_APP"
+      eval "ln -sf $CNFG_APP $HOME_APP"
+  else
+      echo No
+  fi
+}

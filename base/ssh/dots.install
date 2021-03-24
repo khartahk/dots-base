@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+source "$DOTS_SOURCE/base/bash/environment"
+
+APP_DIR="ssh"
+HOME_APP="$HOME/.$APP_DIR"
+CNFG_APP="$XDG_CONFIG_HOME/$APP_DIR"
+
+# Copy to $APP_DIR
+#cp -a "$CNFG_APP" "$HOME_APP"
+
+if [ ! -L "$HOME_APP" ] && [ -d "$HOME_APP" ] ; then
+  move_from_home_2_config $HOME_APP $CNFG_APP
+else
+  # Link to $APP_DIR
+  rm -f "$HOME_APP"
+  ln -sf "$CNFG_APP" "$HOME_APP"
+fi
+
+if [[ ! -f "$HOME_APP/assh.custom.yml" ]] ; then
+  cp -a $CNFG_APP/assh.custom.yml.template $HOME_APP/assh.custom.yml
+fi
